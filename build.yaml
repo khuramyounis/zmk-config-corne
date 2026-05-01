@@ -18,9 +18,15 @@
 #     artifact-name: corne_left_with_studio
 #
 ---
+# Board slug uses Zephyr hwmv2 syntax: <board>/<qualifier>/<variant>.
+# - `nice_nano` is the upstream board id (the legacy `nice_nano_v2` name no longer exists;
+#   the v2 hardware revision is the default revision of the `nice_nano` board on ZMK main).
+# - `nrf52840` is the qualifier (Zephyr-side hardware variant).
+# - `zmk` is the board variant exposing ZMK-specific outputs (USB + BLE).
+# Ref: zmkfirmware/zmk app/boards/nicekeyboards/nice_nano/board.yml + nice_nano.zmk.yml.
 include:
-  - board: nice_nano_v2/nrf52840/zmk
+  - board: nice_nano/nrf52840/zmk
     shield: corne_left nice_view_adapter nice_view
     snippet: studio-rpc-usb-uart
-  - board: nice_nano_v2/nrf52840/zmk
+  - board: nice_nano/nrf52840/zmk
     shield: corne_right nice_view_adapter nice_view

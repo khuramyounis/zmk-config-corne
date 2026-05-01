@@ -1,14 +1,19 @@
 manifest:
-  defaults:
-    revision: v0.3
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
     # Additional modules containing boards/shields/custom code can be listed here as well
     # See https://docs.zephyrproject.org/3.2.0/develop/west/manifest.html#projects
   projects:
+    # ZMK pinned to a specific commit on main rather than the v0.3 tag.
+    # Reason: v0.3 (Jan 2024) predates the Zephyr 4.1 / hwmv2 board migration; the
+    # workflow on zmkfirmware/zmk@main runs Zephyr 4.1 which requires hwmv2 board
+    # metadata, and v0.3's boards crash with `KeyError: 'qualifiers'`.
+    # SHA borrowed from urob/zmk-config (known-good config) — main as of 2026-04-19.
+    # Bump this SHA periodically; do not switch to `revision: main` (drift risk).
     - name: zmk
       remote: zmkfirmware
+      revision: 0331b7d16e80954b807917f9323e59ffc1e3b626
       import: app/west.yml
   self:
     path: config
