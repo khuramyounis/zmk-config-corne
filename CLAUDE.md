@@ -27,7 +27,9 @@ Anything else — `.github/workflows/`, `config/west.yml` (manifest changes have
 
 Strict canon. **No** home-row mods, **no** combos beyond Esc, **no** custom enhancements, **no** "while we're here" tweaks. Goal is muscle memory, not optimization. Re-evaluate at week 8 (~2026-07-01).
 
-The Nav layer keys mirror the Karabiner Caps layer on the ProtoArc and MacBook builtin, with one documented asymmetry: Corne has no digit row on the default layer, so HOME/END live on `a`/`;` instead of `0`/`$`. Right-hand `hjkl/w/b/u/d` core is identical across all three keyboards.
+The vim Nav semantics live on the **existing `lower_layer`** (held by the left-middle thumb, `&mo 1`) — not a separate dedicated layer. This follows the dominant Corne community pattern (the ZMK Corne template ships with arrows in this exact spot) and the canonical opposite-hand split-keyboard rule: left thumb activates, right hand types.
+
+Cross-keyboard symmetry is **semantic, not letter-positional**: ProtoArc/MacBook use Karabiner's Caps layer with the canonical letter mapping (`Caps+w/b` = word, `Caps+u/d` = page, `Caps+0/$` = line edges). Corne's lower layer is shared with numbers + Bluetooth, so the Nav semantics on the right hand are placed by ergonomics (END right of RIGHT, HOME under LEFT, PgDn/PgUp stacked under DOWN/UP, ⌘← / ⌘→ on the outside). The trigger SIDE matches across keyboards (left), but the destination KEYS differ between Corne and Karabiner.
 
 ## How a build is verified
 

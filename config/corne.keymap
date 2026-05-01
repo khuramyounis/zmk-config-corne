@@ -9,33 +9,6 @@
 #include <dt-bindings/zmk/keys.h>
 
 / {
-    // Custom hold-tap for the right-outer thumb that opens the Nav (vim) layer
-    // on hold and emits RALT on tap. RALT is unused on macOS for this user, so
-    // tap is effectively a no-op — chosen deliberately so that an accidental
-    // tap of the trigger does nothing visible rather than emitting a stray
-    // character.
-    //
-    // Parameters borrowed from urob/zmk-config (gold-standard ZMK config):
-    //   flavor            = balanced       — hold-tap decision fires when the
-    //                                        next key is also released; safe on
-    //                                        thumbs because thumbs don't roll
-    //                                        like home-row letters.
-    //   tapping-term-ms   = 280            — upper bound for tap detection.
-    //   quick-tap-ms      = 175            — within 175ms of the last tap of
-    //                                        this key, treat as repeat tap (no
-    //                                        hold), so rapid presses still emit
-    //                                        the tap behavior cleanly.
-    behaviors {
-        lt_nav: layer_tap_nav {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            bindings = <&mo>, <&kp>;
-        };
-    };
-
     keymap {
         compatible = "zmk,keymap";
 
@@ -52,7 +25,7 @@
 &kp ESC    &kp Q  &kp W  &kp E     &kp R  &kp T        &kp Y    &kp U  &kp I      &kp O    &kp P     &kp BSPC
 &kp LCTRL  &kp A  &kp S  &kp D     &kp F  &kp G        &kp H    &kp J  &kp K      &kp L    &kp SEMI  &kp SQT
 &kp LSHFT  &kp Z  &kp X  &kp C     &kp V  &kp B        &kp N    &kp M  &kp COMMA  &kp DOT  &kp FSLH  &none
-                         &kp LGUI  &mo 1  &kp SPACE    &kp RET  &mo 2  &lt_nav 3 RALT
+                         &kp LGUI  &mo 1  &kp SPACE    &kp RET  &mo 2  &kp RALT
             >;
         };
 
@@ -60,16 +33,33 @@
             display-name = "Lower Layer";
 
             // -----------------------------------------------------------------------------------------
-            // |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | BSPC |
-            // | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   | LFT | DWN |  UP | RGT |     |      |
-            // | SHFT |     |     |     |     |     |   |     |     |     |     |     |      |
-            //                    | GUI |     | SPC |   | ENT |     | ALT |
+            // |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6   |  7   |  8   |  9   |  0  | BSPC |
+            // | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   | LEFT | DOWN |  UP  | RIGHT| END |      |
+            // | SHFT |     |     |     |     |     |   | HOME | PgDn | PgUp |  ⌘←  |  ⌘→ |      |
+            //                    | GUI |     | SPC |   | ENT  |      | ALT  |
+            //
+            // Right hand carries the vim Nav semantics on top of the existing
+            // arrow row. Layout rationale:
+            //   END sits to the right of RIGHT (line-end anchor on the right
+            //     edge of the arrow row).
+            //   HOME sits under LEFT (line-start anchor on the left edge of
+            //     the row below).
+            //   PgDn / PgUp stack under DOWN / UP so half-page jumps mirror
+            //     single-line arrows directionally.
+            //   Word jumps (⌘← / ⌘→) live to the right of the page jumps so
+            //     the wider "skip-by-word" motion sits under stronger fingers.
+            // Letter-position symmetry with the Karabiner Caps layer is
+            // partial: ProtoArc/MacBook use the canonical vim positions
+            // (Caps+0=Home, Caps+$=End, Caps+w/b=word, Caps+u/d=page) because
+            // full-size keyboards have the digit row available. Corne's lower
+            // layer is shared with numbers + Bluetooth, so the Nav semantics
+            // are placed by ergonomics rather than by letter-under-finger.
 
             bindings = <
-&kp TAB     &kp N1        &kp N2        &kp N3        &kp N4        &kp N5          &kp N6    &kp N7    &kp N8    &kp N9     &kp N0  &kp BSPC
-&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &kp LEFT  &kp DOWN  &kp UP    &kp RIGHT  &trans  &trans
-&kp LSHFT   &trans        &trans        &trans        &trans        &trans          &trans    &trans    &trans    &trans     &trans  &trans
-                                        &kp LGUI      &trans        &kp SPACE       &kp RET   &trans    &kp RALT
+&kp TAB     &kp N1        &kp N2        &kp N3        &kp N4        &kp N5          &kp N6    &kp N7     &kp N8     &kp N9        &kp N0         &kp BSPC
+&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4    &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT     &kp END        &trans
+&kp LSHFT   &trans        &trans        &trans        &trans        &trans          &kp HOME  &kp PG_DN  &kp PG_UP  &kp LG(LEFT)  &kp LG(RIGHT)  &trans
+                                        &kp LGUI      &trans        &kp SPACE       &kp RET   &trans     &kp RALT
             >;
         };
 
@@ -90,37 +80,12 @@
             >;
         };
 
-        // Vim Nav layer (canon). Activated by holding the right-outer thumb (lt_nav).
-        // Letter-under-finger semantics match the Karabiner Caps-layer on the
-        // ProtoArc and MacBook builtin so muscle memory transfers across all
-        // three keyboards.
-        //
-        // Right-hand row 2: hjkl → arrows (the canonical vim nav core).
-        // Word jumps (w/b) emit ⌘→ / ⌘← — macOS word navigation.
-        // Page jumps (u/d) emit PgUp / PgDn — closest practical analogue
-        //   outside of Vim itself for "Ctrl+u / Ctrl+d half-page" semantics.
-        // Line edges: Corne's default layer has no digits, so vim's `0` and
-        //   `$` (which live on the digit row) cannot be mirrored exactly.
-        //   Resolution: HOME on `a` and END on `;` — ergonomic line-edge
-        //   anchors that bracket the home row. Documented asymmetry vs.
-        //   Karabiner, which keeps `0`/`$` because full-size keyboards have
-        //   the digit row available.
-        // ESC kept on top-left to preserve the existing Corne mental model;
-        //   ProtoArc gets Esc-on-Caps-tap because Caps is otherwise idle.
-        //
-        // -----------------------------------------------------------------------------------------
-        // |  ESC |     |  ⌘→ |     |     |     |   |     | PgUp |     |     |     |      |
-        // |      | Home|     | PgDn|     |     |   | LEFT| DOWN | UP  |RIGHT| End |      |
-        // |      |     |     |     |     |  ⌘← |   |     |      |     |     |     |      |
-        //                    |     |     |     |   |     |      |hold |
-        nav_layer {
-            display-name = "Nav";
-
+        layer_3 {
             bindings = <
-&kp ESC  &trans    &kp LG(RIGHT)  &trans     &trans  &trans         &trans    &kp PG_UP  &trans  &trans     &trans   &trans
-&trans   &kp HOME  &trans         &kp PG_DN  &trans  &trans         &kp LEFT  &kp DOWN   &kp UP  &kp RIGHT  &kp END  &trans
-&trans   &trans    &trans         &trans     &trans  &kp LG(LEFT)   &trans    &trans     &trans  &trans     &trans   &trans
-                                  &trans     &trans  &trans         &trans    &trans     &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &key_repeat  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &trans       &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &trans       &trans  &trans  &trans  &trans  &trans
+                        &trans  &trans  &trans    &trans       &trans  &trans
             >;
         };
     };
